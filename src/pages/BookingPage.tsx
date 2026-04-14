@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,79 @@ const serviceOptions: Record<string, string[]> = {
   "Quick & Express": ["Urgent document help", "Fast application support", "Emergency edits", "Same-day assistance"],
 };
 
+// Services requiring specific details
+const servicesWithDetails = {
+  // Government & Applications
+  "KRA PIN & returns": ["id_number", "pin_number"],
+  "Passport & certificates": ["id_number", "passport_number"],
+  "eCitizen services": ["id_number"],
+  
+  // Academic & Student
+  "KUCCPS applications": ["kcse_index", "kcpe_index", "kcse_year", "course_name"],
+  "HELB applications": ["admission_number", "institution_name", "course_name"],
+  "Online applications": ["institution_name"],
+  "Good conduct": ["institution_name"],
+  "Assignment preparation": ["institution_name", "course_name", "deadline"],
+  "Research support": ["institution_name", "course_name", "research_topic"],
+  "Typing & formatting": ["document_type"],
+  
+  // Job & Professional
+  "CV revamp": ["current_job_title", "years_experience"],
+  "Cover letter writing": ["position_title", "company_name"],
+  "Job applications": ["position_title", "company_name"],
+  "LinkedIn optimization": ["linkedin_url"],
+  
+  // Design & Branding
+  "Logo design": ["business_name", "industry_type"],
+  "Business cards": ["business_name", "company_details"],
+  "Posters & flyers": ["event_name", "event_date"],
+  "Invitation cards": ["event_name", "event_date"],
+  "Social media graphics": ["platform_name", "content_type"],
+  
+  // Online & Tech
+  "Website support": ["website_url"],
+  "Email & account setup": ["email_provider_pref"],
+  "Online registrations": ["platform_name"],
+  "Digital form filling": ["platform_name"],
+};
+
 const OWNER_WHATSAPP = "254708580506";
+
+// Field labels for all details
+const fieldLabels: Record<string, string> = {
+  // KUCCPS/Academic
+  "kcse_index": "KCSE Index Number",
+  "kcpe_index": "KCPE Index Number",
+  "kcse_year": "KCSE Year",
+  "admission_number": "Admission Number",
+  "institution_name": "Institution Name",
+  "course_name": "Course Name",
+  "deadline": "Deadline",
+  "research_topic": "Research Topic",
+  "document_type": "Document Type",
+  
+  // Government
+  "id_number": "ID Number",
+  "pin_number": "PIN Number",
+  "passport_number": "Passport Number",
+  
+  // Job & Professional
+  "current_job_title": "Current Job Title",
+  "years_experience": "Years of Experience",
+  "position_title": "Position Title",
+  "company_name": "Company Name",
+  "linkedin_url": "LinkedIn Profile URL",
+  
+  // Design & Branding
+  "business_name": "Business/Brand Name",
+  "industry_type": "Industry Type",
+  "event_name": "Event Name",
+  "event_date": "Event Date",
+  "platform_name": "Platform Name",
+  "content_type": "Content Type",
+  "website_url": "Website URL",
+  "email_provider_pref": "Email Provider Preference",
+};
 
 const BookingPage = () => {
   const { toast } = useToast();
@@ -27,6 +99,46 @@ const BookingPage = () => {
   const [category, setCategory] = useState("");
   const [service, setService] = useState("");
   const [mode, setMode] = useState("");
+  
+  // Academic registration fields
+  const [kcseIndex, setKcseIndex] = useState("");
+  const [kcpeIndex, setKcpeIndex] = useState("");
+  const [kcseYear, setKcseYear] = useState("");
+  const [admissionNumber, setAdmissionNumber] = useState("");
+  const [institutionName, setInstitutionName] = useState("");
+  const [courseName, setCourseName] = useState("");
+  
+  // Government fields
+  const [idNumber, setIdNumber] = useState("");
+  const [pinNumber, setPinNumber] = useState("");
+  const [passportNumber, setPassportNumber] = useState("");
+  
+  // Job & Professional fields
+  const [currentJobTitle, setCurrentJobTitle] = useState("");
+  const [yearsExperience, setYearsExperience] = useState("");
+  const [positionTitle, setPositionTitle] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
+  
+  // Design & Branding fields
+  const [businessName, setBusinessName] = useState("");
+  const [industryType, setIndustryType] = useState("");
+  const [eventName, setEventName] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [platformName, setPlatformName] = useState("");
+  const [contentType, setContentType] = useState("");
+  
+  // Tech & Other fields
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [emailProviderPref, setEmailProviderPref] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [researchTopic, setResearchTopic] = useState("");
+  const [documentType, setDocumentType] = useState("");
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const uploadFiles = async (files: FileList | null): Promise<string[]> => {
     if (!files || files.length === 0) return [];
@@ -54,7 +166,7 @@ const BookingPage = () => {
     try {
       const fileUrls = await uploadFiles(fileInput?.files ?? null);
 
-      const bookingData = {
+      const bookingData: any = {
         category,
         service,
         mode,
@@ -68,21 +180,91 @@ const BookingPage = () => {
         file_urls: fileUrls,
       };
 
+      // Add service-specific fields if service requires them
+      if (servicesWithDetails[service as keyof typeof servicesWithDetails]) {
+        // Academic/KUCCPS fields
+        if (kcseIndex) bookingData.kcse_index = kcseIndex;
+        if (kcpeIndex) bookingData.kcpe_index = kcpeIndex;
+        if (kcseYear) bookingData.kcse_year = kcseYear;
+        if (admissionNumber) bookingData.admission_number = admissionNumber;
+        if (institutionName) bookingData.institution_name = institutionName;
+        if (courseName) bookingData.course_name = courseName;
+        
+        // Government fields
+        if (idNumber) bookingData.id_number = idNumber;
+        if (pinNumber) bookingData.pin_number = pinNumber;
+        if (passportNumber) bookingData.passport_number = passportNumber;
+        
+        // Job & Professional fields
+        if (currentJobTitle) bookingData.current_job_title = currentJobTitle;
+        if (yearsExperience) bookingData.years_experience = yearsExperience;
+        if (positionTitle) bookingData.position_title = positionTitle;
+        if (companyName) bookingData.company_name = companyName;
+        if (linkedinUrl) bookingData.linkedin_url = linkedinUrl;
+        
+        // Design & Branding fields
+        if (businessName) bookingData.business_name = businessName;
+        if (industryType) bookingData.industry_type = industryType;
+        if (eventName) bookingData.event_name = eventName;
+        if (eventDate) bookingData.event_date = eventDate;
+        if (platformName) bookingData.platform_name = platformName;
+        if (contentType) bookingData.content_type = contentType;
+        
+        // Tech & Other fields
+        if (websiteUrl) bookingData.website_url = websiteUrl;
+        if (emailProviderPref) bookingData.email_provider_pref = emailProviderPref;
+        if (deadline) bookingData.deadline = deadline;
+        if (researchTopic) bookingData.research_topic = researchTopic;
+        if (documentType) bookingData.document_type = documentType;
+      }
+
       const { error } = await supabase.from("bookings").insert(bookingData);
       if (error) throw error;
 
       // Build WhatsApp message
       const clientName = bookingData.client_name;
-      const msg = `Hi, I just booked a service on DigiServe.\n\n` +
+      let msg = `Hi, I just booked a service on DigiServe.\n\n` +
         `📋 *Booking Details*\n` +
         `👤 Name: ${clientName}\n` +
         `📂 Category: ${category || "N/A"}\n` +
         `🔧 Service: ${service || "N/A"}\n` +
-        `🖥️ Mode: ${mode || "N/A"}\n` +
-        (bookingData.preferred_date ? `📅 Date: ${bookingData.preferred_date}\n` : "") +
-        (bookingData.preferred_time ? `⏰ Time: ${bookingData.preferred_time}\n` : "") +
-        (bookingData.notes ? `📝 Notes: ${bookingData.notes}\n` : "") +
-        `\nPlease confirm my booking. Thank you!`;
+        `🖥️ Mode: ${mode || "N/A"}\n`;
+      
+      if (bookingData.preferred_date) msg += `📅 Date: ${bookingData.preferred_date}\n`;
+      if (bookingData.preferred_time) msg += `⏰ Time: ${bookingData.preferred_time}\n`;
+      
+      // Add service-specific details if applicable
+      if (servicesWithDetails[service as keyof typeof servicesWithDetails]) {
+        msg += `\n📋 *Service Details*\n`;
+        if (kcseIndex) msg += `KCSE Index: ${kcseIndex}\n`;
+        if (kcpeIndex) msg += `KCPE Index: ${kcpeIndex}\n`;
+        if (kcseYear) msg += `KCSE Year: ${kcseYear}\n`;
+        if (admissionNumber) msg += `Admission #: ${admissionNumber}\n`;
+        if (institutionName) msg += `Institution: ${institutionName}\n`;
+        if (courseName) msg += `Course: ${courseName}\n`;
+        if (idNumber) msg += `ID Number: ${idNumber}\n`;
+        if (pinNumber) msg += `PIN: ${pinNumber}\n`;
+        if (passportNumber) msg += `Passport #: ${passportNumber}\n`;
+        if (currentJobTitle) msg += `Current Job: ${currentJobTitle}\n`;
+        if (yearsExperience) msg += `Experience: ${yearsExperience} years\n`;
+        if (positionTitle) msg += `Position: ${positionTitle}\n`;
+        if (companyName) msg += `Company: ${companyName}\n`;
+        if (linkedinUrl) msg += `LinkedIn: ${linkedinUrl}\n`;
+        if (businessName) msg += `Business: ${businessName}\n`;
+        if (industryType) msg += `Industry: ${industryType}\n`;
+        if (eventName) msg += `Event: ${eventName}\n`;
+        if (eventDate) msg += `Event Date: ${eventDate}\n`;
+        if (platformName) msg += `Platform: ${platformName}\n`;
+        if (contentType) msg += `Content Type: ${contentType}\n`;
+        if (websiteUrl) msg += `Website: ${websiteUrl}\n`;
+        if (emailProviderPref) msg += `Email Provider: ${emailProviderPref}\n`;
+        if (deadline) msg += `Deadline: ${deadline}\n`;
+        if (researchTopic) msg += `Research Topic: ${researchTopic}\n`;
+        if (documentType) msg += `Document Type: ${documentType}\n`;
+      }
+      
+      if (bookingData.notes) msg += `\n📝 Notes: ${bookingData.notes}\n`;
+      msg += `\nPlease confirm my booking. Thank you!`;
 
       const whatsappUrl = `https://wa.me/${OWNER_WHATSAPP}?text=${encodeURIComponent(msg)}`;
 
@@ -215,6 +397,116 @@ const BookingPage = () => {
               <Label htmlFor="notes">Notes / Instructions</Label>
               <Textarea id="notes" name="notes" placeholder="Tell us more about what you need..." rows={3} />
             </div>
+
+            {/* Service-specific detail fields - Conditional */}
+            {servicesWithDetails[service as keyof typeof servicesWithDetails] && (
+              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-4">📋 Service Details</h3>
+                
+                {service === "KUCCPS applications" && (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="kcse-index">KCSE Index Number *</Label>
+                        <Input
+                          id="kcse-index"
+                          placeholder="e.g., 20180001234"
+                          value={kcseIndex}
+                          onChange={(e) => setKcseIndex(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="kcpe-index">KCPE Index Number *</Label>
+                        <Input
+                          id="kcpe-index"
+                          placeholder="e.g., 20170005678"
+                          value={kcpeIndex}
+                          onChange={(e) => setKcpeIndex(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="kcse-year">KCSE Year *</Label>
+                      <Input
+                        id="kcse-year"
+                        placeholder="e.g., 2023"
+                        value={kcseYear}
+                        onChange={(e) => setKcseYear(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="course-name">Course Interested In *</Label>
+                      <Input
+                        id="course-name"
+                        placeholder="Enter the course you're interested in or 'Not sure'"
+                        value={courseName}
+                        onChange={(e) => setCourseName(e.target.value)}
+                        required
+                      />
+                      <p className="text-xs text-muted-foreground">Not sure which course? Don't worry, we offer free guidance to help you choose!</p>
+                    </div>
+                  </>
+                )}
+
+                {service === "HELB applications" && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="admission-number">Admission/Registration Number *</Label>
+                      <Input
+                        id="admission-number"
+                        placeholder="e.g., ADM2024001"
+                        value={admissionNumber}
+                        onChange={(e) => setAdmissionNumber(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="institution-name">Institution Name *</Label>
+                        <Input
+                          id="institution-name"
+                          placeholder="e.g., University of Nairobi"
+                          value={institutionName}
+                          onChange={(e) => setInstitutionName(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="course-name">Course Interested In *</Label>
+                        <Input
+                          id="course-name"
+                          placeholder="Enter the course you're interested in or 'Not sure'"
+                          value={courseName}
+                          onChange={(e) => setCourseName(e.target.value)}
+                          required
+                        />
+                        <p className="text-xs text-muted-foreground">Not sure which course? Don't worry, we offer free guidance to help you choose!</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {(service === "Online applications" || service === "Good conduct") && (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="institution-name">Institution Name *</Label>
+                        <Input
+                          id="institution-name"
+                          placeholder="Your institution name"
+                          value={institutionName}
+                          onChange={(e) => setInstitutionName(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="files">Upload Files (if any)</Label>

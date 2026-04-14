@@ -72,13 +72,23 @@ const ContactPage = () => {
                   </div>
                 </div>
 
+                <a href="https://godswillrobwet.netlify.app/" target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 text-sm group">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary flex-shrink-0">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Website</p>
+                    <p className="text-muted-foreground group-hover:text-primary transition-colors">godswillrobwet.netlify.app</p>
+                  </div>
+                </a>
+
                 <div className="flex items-start gap-4 text-sm">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary flex-shrink-0">
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="font-semibold">Location</p>
-                    <p className="text-muted-foreground">Nairobi, Kenya (Online-first — we serve clients remotely)</p>
+                    <p className="text-muted-foreground">Nakuru, Kenya (Online-first — we serve clients remotely)</p>
                   </div>
                 </div>
               </div>

@@ -52,8 +52,14 @@ const Footer = () => (
             <li className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-accent" /> goddyrob31@gmail.com
             </li>
+            <li className="flex items-center gap-2">
+              <Monitor className="h-4 w-4 text-accent" />
+              <a href="https://godswillrobwet.netlify.app/" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                godswillrobwet.netlify.app
+              </a>
+            </li>
             <li className="flex items-start gap-2">
-              <MapPin className="h-4 w-4 text-accent mt-0.5" /> Nairobi, Kenya (Online-first)
+              <MapPin className="h-4 w-4 text-accent mt-0.5" /> Nakuru, Kenya (Online-first)
             </li>
           </ul>
         </div>

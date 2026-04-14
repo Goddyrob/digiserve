@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, LogOut, CalendarDays, ClipboardList, RefreshCw, Phone, Mail, FileText, ExternalLink } from "lucide-react";
+import PaymentReceipt from "@/components/PaymentReceipt";
 
 type Booking = {
   id: string;
@@ -70,6 +71,11 @@ const AdminDashboard = () => {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
+  const [pendingRequestId, setPendingRequestId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -103,11 +109,61 @@ const AdminDashboard = () => {
   };
 
   const updateStatus = async (table: "bookings" | "service_requests", id: string, status: string) => {
+    // For bookings with "completed" status, show receipt dialog instead
+    if (table === "bookings" && status === "completed") {
+      const booking = bookings.find(b => b.id === id);
+      if (booking) {
+        setSelectedBooking(booking);
+        setPendingBookingId(id);
+        setReceiptOpen(true);
+      }
+      return;
+    }
+
+    // For service requests with "completed" status, show receipt dialog instead
+    if (table === "service_requests" && status === "completed") {
+      const request = requests.find(r => r.id === id);
+      if (request) {
+        setSelectedRequest(request);
+        setPendingRequestId(id);
+        setReceiptOpen(true);
+      }
+      return;
+    }
+
     const { error } = await supabase.from(table).update({ status }).eq("id", id);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Status updated" });
+      fetchData();
+    }
+  };
+
+  const completeBooking = async () => {
+    if (!pendingBookingId) return;
+    const { error } = await supabase.from("bookings").update({ status: "completed" }).eq("id", pendingBookingId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Booking completed! Receipt generated." });
+      setReceiptOpen(false);
+      setPendingBookingId(null);
+      setSelectedBooking(null);
+      fetchData();
+    }
+  };
+
+  const completeServiceRequest = async () => {
+    if (!pendingRequestId) return;
+    const { error } = await supabase.from("service_requests").update({ status: "completed" }).eq("id", pendingRequestId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Service request completed! Receipt generated." });
+      setReceiptOpen(false);
+      setPendingRequestId(null);
+      setSelectedRequest(null);
       fetchData();
     }
   };
@@ -316,6 +372,27 @@ const AdminDashboard = () => {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Payment Receipt Dialog */}
+        {(selectedBooking || selectedRequest) && (
+          <PaymentReceipt
+            isOpen={receiptOpen}
+            onClose={() => {
+              setReceiptOpen(false);
+              if (selectedBooking) {
+                completeBooking();
+              } else if (selectedRequest) {
+                completeServiceRequest();
+              }
+            }}
+            booking={{
+              id: selectedBooking?.id || selectedRequest?.id || "",
+              client_name: selectedBooking?.client_name || selectedRequest?.client_name || "",
+              service: selectedBooking?.service || selectedRequest?.description || "Service",
+              category: selectedBooking?.category || "Service Request",
+            }}
+          />
+        )}
       </div>
     </div>
   );
