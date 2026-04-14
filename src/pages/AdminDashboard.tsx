@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, LogOut, CalendarDays, ClipboardList, RefreshCw, Phone, Mail, FileText, ExternalLink } from "lucide-react";
+import { Loader2, LogOut, CalendarDays, ClipboardList, RefreshCw, Phone, Mail, FileText, ExternalLink, Trash2 } from "lucide-react";
 import PaymentReceipt from "@/components/PaymentReceipt";
 
 type Booking = {
@@ -168,6 +168,34 @@ const AdminDashboard = () => {
     }
   };
 
+  const deleteCompletedBooking = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this completed booking? This action cannot be undone.")) {
+      return;
+    }
+
+    const { error } = await supabase.from("bookings").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Booking deleted successfully" });
+      fetchData();
+    }
+  };
+
+  const deleteCompletedRequest = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this completed service request? This action cannot be undone.")) {
+      return;
+    }
+
+    const { error } = await supabase.from("service_requests").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Service request deleted successfully" });
+      fetchData();
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/admin-login");
@@ -241,6 +269,16 @@ const AdminDashboard = () => {
                           <SelectItem value="cancelled">Cancelled</SelectItem>
                         </SelectContent>
                       </Select>
+                      {b.status === "completed" && (
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          onClick={() => deleteCompletedBooking(b.id)}
+                          className="w-full mt-2"
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" /> Delete Booking
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -274,15 +312,26 @@ const AdminDashboard = () => {
                         <TableCell><Badge className={statusColor(b.status)}>{b.status}</Badge></TableCell>
                         <TableCell className="text-xs">{new Date(b.created_at).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Select value={b.status} onValueChange={v => updateStatus("bookings", b.id, v)}>
-                            <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="confirmed">Confirmed</SelectItem>
-                              <SelectItem value="completed">Completed</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <div className="flex items-center gap-2">
+                            <Select value={b.status} onValueChange={v => updateStatus("bookings", b.id, v)}>
+                              <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="confirmed">Confirmed</SelectItem>
+                                <SelectItem value="completed">Completed</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            {b.status === "completed" && (
+                              <Button 
+                                variant="destructive" 
+                                size="sm" 
+                                onClick={() => deleteCompletedBooking(b.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -323,6 +372,16 @@ const AdminDashboard = () => {
                           <SelectItem value="cancelled">Cancelled</SelectItem>
                         </SelectContent>
                       </Select>
+                      {r.status === "completed" && (
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          onClick={() => deleteCompletedRequest(r.id)}
+                          className="w-full mt-2"
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" /> Delete Request
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -354,15 +413,26 @@ const AdminDashboard = () => {
                         <TableCell><Badge className={statusColor(r.status)}>{r.status}</Badge></TableCell>
                         <TableCell className="text-xs">{new Date(r.created_at).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Select value={r.status} onValueChange={v => updateStatus("service_requests", r.id, v)}>
-                            <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="confirmed">Confirmed</SelectItem>
-                              <SelectItem value="completed">Completed</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <div className="flex items-center gap-2">
+                            <Select value={r.status} onValueChange={v => updateStatus("service_requests", r.id, v)}>
+                              <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="confirmed">Confirmed</SelectItem>
+                                <SelectItem value="completed">Completed</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            {r.status === "completed" && (
+                              <Button 
+                                variant="destructive" 
+                                size="sm" 
+                                onClick={() => deleteCompletedRequest(r.id)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

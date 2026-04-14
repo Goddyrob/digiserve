@@ -96,6 +96,7 @@ const BookingPage = () => {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [ticketNumber, setTicketNumber] = useState("");
   const [category, setCategory] = useState("");
   const [service, setService] = useState("");
   const [mode, setMode] = useState("");
@@ -166,7 +167,11 @@ const BookingPage = () => {
     try {
       const fileUrls = await uploadFiles(fileInput?.files ?? null);
 
+      // Generate unique ticket number
+      const ticketNumber = `DHB-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+
       const bookingData: any = {
+        ticket_number: ticketNumber,
         category,
         service,
         mode,
@@ -221,8 +226,9 @@ const BookingPage = () => {
       const { error } = await supabase.from("bookings").insert(bookingData);
       if (error) throw error;
 
+      setTicketNumber(ticketNumber);
       setSubmitted(true);
-      toast({ title: "Booking submitted!", description: "We'll review your request and get back to you soon." });
+      toast({ title: "Booking submitted!", description: `Your ticket number is ${ticketNumber}. We'll contact you soon.` });
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to submit booking. Please try again.", variant: "destructive" });
     } finally {
@@ -238,17 +244,23 @@ const BookingPage = () => {
             <div className="bg-card rounded-lg p-10 shadow-[var(--card-shadow)]">
               <CheckCircle className="h-16 w-16 text-primary mx-auto mb-4" />
               <h1 className="text-2xl font-bold mb-3">Booking Submitted!</h1>
+              <div className="bg-primary/10 rounded-lg p-4 mb-4">
+                <p className="text-sm font-medium text-primary mb-1">Your Ticket Number:</p>
+                <p className="text-2xl font-bold text-primary">{ticketNumber}</p>
+                <p className="text-xs text-muted-foreground mt-1">Save this number for tracking your booking</p>
+              </div>
               <p className="text-muted-foreground mb-2">Thank you for your booking. Here's what happens next:</p>
               <ul className="text-left text-sm text-muted-foreground space-y-2 my-6">
                 <li>✅ We'll review your request shortly</li>
                 <li>📱 You'll receive confirmation via WhatsApp, SMS, or email</li>
                 <li>💻 Your service can be delivered fully online</li>
                 <li>📞 We'll contact you if we need more details</li>
+                <li>🎫 Use your ticket number to check status or follow up</li>
               </ul>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button onClick={() => setSubmitted(false)}>Book Another Service</Button>
                 <Button variant="whatsapp" asChild>
-                  <a href="https://wa.me/254708580506?text=Hi%2C%20I%20just%20submitted%20a%20booking" target="_blank" rel="noopener noreferrer">
+                  <a href={`https://wa.me/254708580506?text=Hi%2C%20I%20just%20submitted%20a%20booking.%20My%20ticket%20number%20is%20${encodeURIComponent(ticketNumber)}`} target="_blank" rel="noopener noreferrer">
                     Chat on WhatsApp
                   </a>
                 </Button>

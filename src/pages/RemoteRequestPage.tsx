@@ -18,6 +18,7 @@ const RemoteRequestPage = () => {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [ticketNumber, setTicketNumber] = useState("");
   const [urgency, setUrgency] = useState("");
   const [preferredContact, setPreferredContact] = useState("");
   const [description, setDescription] = useState("");
@@ -93,7 +94,11 @@ const RemoteRequestPage = () => {
     try {
       const fileUrls = await uploadFiles(fileInput?.files ?? null);
 
+      // Generate unique ticket number
+      const ticketNumber = `DHB-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+
       const requestData: any = {
+        ticket_number: ticketNumber,
         description: formData.get("description") as string,
         urgency,
         client_name: formData.get("name") as string,
@@ -138,8 +143,9 @@ const RemoteRequestPage = () => {
       const { error } = await supabase.from("service_requests").insert(requestData);
       if (error) throw error;
 
+      setTicketNumber(ticketNumber);
       setSubmitted(true);
-      toast({ title: "Request submitted!", description: "We'll review your request and get back to you soon." });
+      toast({ title: "Request submitted!", description: `Your ticket number is ${ticketNumber}. We'll review your request and get back to you soon.` });
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to submit request. Please try again.", variant: "destructive" });
     } finally {
@@ -155,13 +161,18 @@ const RemoteRequestPage = () => {
             <div className="bg-card rounded-lg p-10 shadow-[var(--card-shadow)]">
               <CheckCircle className="h-16 w-16 text-primary mx-auto mb-4" />
               <h1 className="text-2xl font-bold mb-3">Request Received!</h1>
+              <div className="bg-primary/10 rounded-lg p-4 mb-4">
+                <p className="text-sm font-medium text-primary mb-1">Your Ticket Number:</p>
+                <p className="text-2xl font-bold text-primary">{ticketNumber}</p>
+                <p className="text-xs text-muted-foreground mt-1">Save this number for tracking your request</p>
+              </div>
               <p className="text-muted-foreground mb-6">
                 We've received your service request. Our team will review it and get back to you via your preferred communication method.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button onClick={() => setSubmitted(false)}>Submit Another Request</Button>
                 <Button variant="whatsapp" asChild>
-                  <a href="https://wa.me/254708580506" target="_blank" rel="noopener noreferrer">
+                  <a href={`https://wa.me/254708580506?text=Hi%2C%20I%20just%20submitted%20a%20request.%20My%20ticket%20number%20is%20${encodeURIComponent(ticketNumber)}`} target="_blank" rel="noopener noreferrer">
                     Chat on WhatsApp
                   </a>
                 </Button>
