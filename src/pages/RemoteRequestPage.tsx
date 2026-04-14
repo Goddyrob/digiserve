@@ -138,50 +138,8 @@ const RemoteRequestPage = () => {
       const { error } = await supabase.from("service_requests").insert(requestData);
       if (error) throw error;
 
-      // Build WhatsApp message
-      let msg = `Hi, I just submitted a service request on DigiServe.\n\n` +
-        `🆘 *Service Request*\n` +
-        `👤 Name: ${requestData.client_name}\n` +
-        `📝 Description: ${requestData.description}\n` +
-        `⚡ Urgency: ${urgency || "Normal"}\n` +
-        `📞 Preferred Contact: ${preferredContact || "N/A"}\n`;
-      
-      // Add service-specific details if applicable
-      msg += `\n📋 *Service Details*\n`;
-      if (kcseIndex) msg += `KCSE Index: ${kcseIndex}\n`;
-      if (kcpeIndex) msg += `KCPE Index: ${kcpeIndex}\n`;
-      if (kcseYear) msg += `KCSE Year: ${kcseYear}\n`;
-      if (admissionNumber) msg += `Admission #: ${admissionNumber}\n`;
-      if (institutionName) msg += `Institution: ${institutionName}\n`;
-      if (courseName) msg += `Course: ${courseName}\n`;
-      if (idNumber) msg += `ID Number: ${idNumber}\n`;
-      if (pinNumber) msg += `PIN: ${pinNumber}\n`;
-      if (passportNumber) msg += `Passport #: ${passportNumber}\n`;
-      if (currentJobTitle) msg += `Current Job: ${currentJobTitle}\n`;
-      if (yearsExperience) msg += `Experience: ${yearsExperience} years\n`;
-      if (positionTitle) msg += `Position: ${positionTitle}\n`;
-      if (companyName) msg += `Company: ${companyName}\n`;
-      if (linkedinUrl) msg += `LinkedIn: ${linkedinUrl}\n`;
-      if (businessName) msg += `Business: ${businessName}\n`;
-      if (industryType) msg += `Industry: ${industryType}\n`;
-      if (eventName) msg += `Event: ${eventName}\n`;
-      if (eventDate) msg += `Event Date: ${eventDate}\n`;
-      if (platformName) msg += `Platform: ${platformName}\n`;
-      if (contentType) msg += `Content Type: ${contentType}\n`;
-      if (websiteUrl) msg += `Website: ${websiteUrl}\n`;
-      if (emailProviderPref) msg += `Email Provider: ${emailProviderPref}\n`;
-      if (deadline) msg += `Deadline: ${deadline}\n`;
-      if (researchTopic) msg += `Research Topic: ${researchTopic}\n`;
-      if (documentType) msg += `Document Type: ${documentType}\n`;
-      
-      msg += `\nPlease get back to me. Thank you!`;
-
-      const whatsappUrl = `https://wa.me/${OWNER_WHATSAPP}?text=${encodeURIComponent(msg)}`;
-
       setSubmitted(true);
-      toast({ title: "Request submitted!", description: "Redirecting you to WhatsApp..." });
-
-      setTimeout(() => window.open(whatsappUrl, "_blank"), 500);
+      toast({ title: "Request submitted!", description: "We'll review your request and get back to you soon." });
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to submit request. Please try again.", variant: "destructive" });
     } finally {

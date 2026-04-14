@@ -221,58 +221,8 @@ const BookingPage = () => {
       const { error } = await supabase.from("bookings").insert(bookingData);
       if (error) throw error;
 
-      // Build WhatsApp message
-      const clientName = bookingData.client_name;
-      let msg = `Hi, I just booked a service on DigiServe.\n\n` +
-        `📋 *Booking Details*\n` +
-        `👤 Name: ${clientName}\n` +
-        `📂 Category: ${category || "N/A"}\n` +
-        `🔧 Service: ${service || "N/A"}\n` +
-        `🖥️ Mode: ${mode || "N/A"}\n`;
-      
-      if (bookingData.preferred_date) msg += `📅 Date: ${bookingData.preferred_date}\n`;
-      if (bookingData.preferred_time) msg += `⏰ Time: ${bookingData.preferred_time}\n`;
-      
-      // Add service-specific details if applicable
-      if (servicesWithDetails[service as keyof typeof servicesWithDetails]) {
-        msg += `\n📋 *Service Details*\n`;
-        if (kcseIndex) msg += `KCSE Index: ${kcseIndex}\n`;
-        if (kcpeIndex) msg += `KCPE Index: ${kcpeIndex}\n`;
-        if (kcseYear) msg += `KCSE Year: ${kcseYear}\n`;
-        if (admissionNumber) msg += `Admission #: ${admissionNumber}\n`;
-        if (institutionName) msg += `Institution: ${institutionName}\n`;
-        if (courseName) msg += `Course: ${courseName}\n`;
-        if (idNumber) msg += `ID Number: ${idNumber}\n`;
-        if (pinNumber) msg += `PIN: ${pinNumber}\n`;
-        if (passportNumber) msg += `Passport #: ${passportNumber}\n`;
-        if (currentJobTitle) msg += `Current Job: ${currentJobTitle}\n`;
-        if (yearsExperience) msg += `Experience: ${yearsExperience} years\n`;
-        if (positionTitle) msg += `Position: ${positionTitle}\n`;
-        if (companyName) msg += `Company: ${companyName}\n`;
-        if (linkedinUrl) msg += `LinkedIn: ${linkedinUrl}\n`;
-        if (businessName) msg += `Business: ${businessName}\n`;
-        if (industryType) msg += `Industry: ${industryType}\n`;
-        if (eventName) msg += `Event: ${eventName}\n`;
-        if (eventDate) msg += `Event Date: ${eventDate}\n`;
-        if (platformName) msg += `Platform: ${platformName}\n`;
-        if (contentType) msg += `Content Type: ${contentType}\n`;
-        if (websiteUrl) msg += `Website: ${websiteUrl}\n`;
-        if (emailProviderPref) msg += `Email Provider: ${emailProviderPref}\n`;
-        if (deadline) msg += `Deadline: ${deadline}\n`;
-        if (researchTopic) msg += `Research Topic: ${researchTopic}\n`;
-        if (documentType) msg += `Document Type: ${documentType}\n`;
-      }
-      
-      if (bookingData.notes) msg += `\n📝 Notes: ${bookingData.notes}\n`;
-      msg += `\nPlease confirm my booking. Thank you!`;
-
-      const whatsappUrl = `https://wa.me/${OWNER_WHATSAPP}?text=${encodeURIComponent(msg)}`;
-
       setSubmitted(true);
-      toast({ title: "Booking submitted!", description: "Redirecting you to WhatsApp..." });
-
-      // Redirect to WhatsApp
-      setTimeout(() => window.open(whatsappUrl, "_blank"), 500);
+      toast({ title: "Booking submitted!", description: "We'll review your request and get back to you soon." });
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to submit booking. Please try again.", variant: "destructive" });
     } finally {
