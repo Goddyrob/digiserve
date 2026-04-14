@@ -8,12 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ShieldCheck } from "lucide-react";
 
-const ADMIN_EMAIL = "goddyrob31@gmail.com";
-const ADMIN_PASSWORD = "Gkrod313";
-
 const AdminLogin = () => {
-  const [email, setEmail] = useState(ADMIN_EMAIL);
-  const [password, setPassword] = useState(ADMIN_PASSWORD);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -36,7 +33,7 @@ const AdminLogin = () => {
         <CardHeader className="text-center">
           <ShieldCheck className="mx-auto h-10 w-10 text-primary mb-2" />
           <CardTitle className="text-2xl">Admin Login</CardTitle>
-          <p className="text-sm text-muted-foreground mt-2">Admin credentials are pre-filled for quick login.</p>
+            <p className="text-sm text-muted-foreground mt-2">Sign in with your Supabase admin account.</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
