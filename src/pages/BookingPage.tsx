@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
+import WaitingReceipt from "@/components/WaitingReceipt";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -97,6 +98,13 @@ const BookingPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ticketNumber, setTicketNumber] = useState("");
+  const [waitingReceiptOpen, setWaitingReceiptOpen] = useState(false);
+  const [submittedBooking, setSubmittedBooking] = useState<{
+    client_name: string;
+    service: string;
+    category: string;
+    ticket_number: string;
+  } | null>(null);
   const [category, setCategory] = useState("");
   const [service, setService] = useState("");
   const [mode, setMode] = useState("");
@@ -227,6 +235,12 @@ const BookingPage = () => {
       if (error) throw error;
 
       setTicketNumber(ticketNumber);
+      setSubmittedBooking({
+        client_name: formData.get("name") as string,
+        service,
+        category,
+        ticket_number: ticketNumber,
+      });
       setSubmitted(true);
       toast({ title: "Booking submitted!", description: `Your ticket number is ${ticketNumber}. We'll contact you soon.` });
     } catch (err: any) {
@@ -259,6 +273,7 @@ const BookingPage = () => {
               </ul>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button onClick={() => setSubmitted(false)}>Book Another Service</Button>
+                <Button onClick={() => setWaitingReceiptOpen(true)}>Download Waiting Receipt</Button>
                 <Button variant="whatsapp" asChild>
                   <a href={`https://wa.me/254708580506?text=Hi%2C%20I%20just%20submitted%20a%20booking.%20My%20ticket%20number%20is%20${encodeURIComponent(ticketNumber)}`} target="_blank" rel="noopener noreferrer">
                     Chat on WhatsApp
@@ -268,6 +283,14 @@ const BookingPage = () => {
             </div>
           </div>
         </section>
+
+        {submittedBooking && (
+          <WaitingReceipt
+            isOpen={waitingReceiptOpen}
+            onClose={() => setWaitingReceiptOpen(false)}
+            booking={submittedBooking}
+          />
+        )}
       </Layout>
     );
   }
